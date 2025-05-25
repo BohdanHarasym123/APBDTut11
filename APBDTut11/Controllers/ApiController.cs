@@ -15,7 +15,7 @@ public class ApiController : ControllerBase
     }
 
     [HttpPost("api/prescriptions")]
-    public async Task<IActionResult> AddPrescription(AddPrescriptionDTO prescription)
+    public async Task<IActionResult> AddPrescription([FromBody]AddPrescriptionDTO prescription)
     {
         try
         {
@@ -24,6 +24,21 @@ public class ApiController : ControllerBase
         }
         catch (Exception e)
         {
+            return BadRequest(e.Message);
+        }
+    }
+
+    [HttpGet("api/patients/{patientId}")]
+    public async Task<IActionResult> GetPatientAsync([FromRoute]int patientId)
+    {
+        try
+        {
+            var result = await _apiService.GetPatientAsync(patientId);
+            return Ok(result);
+        }
+        catch (Exception e)
+        {
+            if(e.Message.Contains("not found")) return NotFound(e.Message);
             return BadRequest(e.Message);
         }
     }

@@ -64,4 +64,45 @@ public class ApiService : IApiService
         _context.Prescriptions.Add(prescription);
         await _context.SaveChangesAsync();
     }
+
+    public async Task<GetPatientDTO> GetPatientAsync(int patientId)
+    {
+        var patient = await _context.Patients
+            .Include(p => p.Prescriptions)
+            .ThenInclude(p => p.Doctor)
+            .Include(p => p.Prescriptions)
+            .ThenInclude(p => p.PrescriptionMedicaments).ThenInclude(m => m.Medicament)
+            .FirstOrDefaultAsync(p => p.IdPatient == patientId);
+        
+        if(patient == null) throw new Exception("Patient not found");
+
+        var response = new GetPatientDTO
+        {
+            IdPatient = patient.IdPatient,
+            FirstName = patient.FirstName,
+            LastName = patient.LastName,
+            Birthdate = patient.Birthdate,
+            Prescriptions = patient.Prescriptions.OrderBy(p => p.DueDate).Select(p => new PrescriptionDTO
+            {
+                IdPrescription = p.IdPrescription,
+                Date = p.Date,
+                DueDate = p.DueDate,
+                Doctor = new DoctorDTO
+                {
+                    IdDoctor = p.IdDoctor,
+                    FirstName = p.Doctor.FirstName,
+                    LastName = p.Doctor.LastName
+                },
+                Medicaments = p.PrescriptionMedicaments.Select(pm => new MedicamentDTO
+                {
+                    IdMedicament = pm.IdMedicament,
+                    Name = pm.Medicament.Name,
+                    Description = pm.Medicament.Description,
+                    Dose = pm.Dose
+                }).ToList()
+            }).ToList()
+        };
+        
+        return response;
+    }
 }
