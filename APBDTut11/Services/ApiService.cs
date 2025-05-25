@@ -46,6 +46,10 @@ public class ApiService : IApiService
             _context.Patients.Add(patient);
             await _context.SaveChangesAsync();
         }
+        
+        var doctorExists = await _context.Doctors.AnyAsync(d => d.IdDoctor == request.IdDoctor);
+        if (!doctorExists)
+            throw new Exception($"Doctor with ID {request.IdDoctor} does not exist.");
 
         var prescription = new Prescription
         {

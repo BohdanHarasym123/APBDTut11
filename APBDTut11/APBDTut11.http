@@ -1,6 +1,25 @@
 @APBDTut11_HostAddress = http://localhost:5205
 
-GET {{APBDTut11_HostAddress}}/api/patients/1
-Accept: application/json
+POST {{APBDTut11_HostAddress}}/api/prescriptions
+Content-Type: application/json
+
+{
+  "idDoctor": 1,
+  "patient": {
+    "firstName": "John",
+    "lastName": "Smith",
+    "birthdate": "1990-01-01"
+  },
+  "date": "2024-05-24",
+  "dueDate": "2024-05-30",
+  "medicaments": [
+    {
+      "idMedicament": 1,
+      "dose": 10,
+      "description": "Take after food"
+    }
+  ]
+}
+
 
 ###
